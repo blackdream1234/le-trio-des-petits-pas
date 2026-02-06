@@ -1,33 +1,15 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
 export default function TransparencePage() {
     const [media, setMedia] = useState<any[]>([]);
-    const [content, setContent] = useState({
-        title: "Transparence 🚧",
-        desc: "Cette page est en cours de développement. La transparence est une de nos valeurs fondamentales."
-    });
     const supabase = createClient();
 
     useEffect(() => {
-        async function fetchData() {
-            // 1. Fetch Text Content
-            const { data: textData } = await supabase.from('site_content').select('*').eq('section', 'transparency');
-            if (textData) {
-                const title = textData.find(c => c.key === 'transparency_title')?.content;
-                const desc = textData.find(c => c.key === 'transparency_desc')?.content;
-                if (title || desc) {
-                    setContent(prev => ({
-                        title: title || prev.title,
-                        desc: desc || prev.desc
-                    }));
-                }
-            }
-
-            // 2. Fetch Media Gallery
+        async function fetchMedia() {
+            // Fetch Media Gallery Only
             const { data: mediaData } = await supabase
                 .from('site_media')
                 .select('*')
@@ -38,7 +20,7 @@ export default function TransparencePage() {
                 setMedia(mediaData);
             }
         }
-        fetchData();
+        fetchMedia();
     }, []);
 
     return (
@@ -47,10 +29,10 @@ export default function TransparencePage() {
             <section className="pt-40 pb-20 px-6 bg-surface-elevated">
                 <div className="container mx-auto max-w-4xl text-center">
                     <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl text-text-primary mb-6">
-                        {content.title}
+                        Transparence
                     </h1>
                     <p className="text-xl text-text-secondary leading-relaxed max-w-2xl mx-auto">
-                        {content.desc}
+                        La transparence est une de nos valeurs fondamentales. Chaque don est un investissement direct dans l'avenir d'un enfant.
                     </p>
                 </div>
             </section>
@@ -107,6 +89,7 @@ export default function TransparencePage() {
                         {media.length === 0 ? (
                             <div className="text-center py-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
                                 <p className="text-text-secondary">Galerie à venir...</p>
+                                <p className="text-xs text-text-secondary mt-2">Connectez-vous à l'admin pour ajouter des photos.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
