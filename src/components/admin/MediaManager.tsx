@@ -41,39 +41,43 @@ export function MediaManager({ section }: MediaManagerProps) {
         if (!e.target.files || e.target.files.length === 0) return;
 
         setUploading(true);
-        const file = e.target.files[0];
-        const isVideo = file.type.startsWith('video/');
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const files = Array.from(e.target.files);
 
         try {
-            // 1. Upload to Storage
-            const { error: uploadError } = await supabase.storage
-                .from('gallery')
-                .upload(filePath, file);
+            // Process all uploads in parallel
+            await Promise.all(files.map(async (file) => {
+                const isVideo = file.type.startsWith('video/');
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `${fileName}`;
 
-            if (uploadError) throw uploadError;
+                // 1. Upload to Storage
+                const { error: uploadError } = await supabase.storage
+                    .from('gallery')
+                    .upload(filePath, file);
 
-            // 2. Get Public URL
-            const { data } = supabase.storage
-                .from('gallery')
-                .getPublicUrl(filePath);
+                if (uploadError) throw uploadError;
 
-            // 3. Save to DB
-            const { error: dbError } = await supabase
-                .from('site_media')
-                .insert([{
-                    url: data.publicUrl,
-                    type: isVideo ? 'video' : 'image',
-                    caption: '',
-                    section: section
-                }]);
+                // 2. Get Public URL
+                const { data } = supabase.storage
+                    .from('gallery')
+                    .getPublicUrl(filePath);
 
-            if (dbError) throw dbError;
+                // 3. Save to DB
+                const { error: dbError } = await supabase
+                    .from('site_media')
+                    .insert([{
+                        url: data.publicUrl,
+                        type: isVideo ? 'video' : 'image',
+                        caption: '',
+                        section: section
+                    }]);
+
+                if (dbError) throw dbError;
+            }));
 
             fetchMedia();
-            alert('Média ajouté !');
+            alert(`${files.length} média(s) ajouté(s) !`);
 
         } catch (error: any) {
             alert('Erreur: ' + error.message);
@@ -113,12 +117,19 @@ export function MediaManager({ section }: MediaManagerProps) {
             {/* Upload Area */}
             <div className="bg-white p-6 rounded-3xl border border-dashed border-primary/30 text-center hover:bg-primary/5 transition-colors">
                 <input
+                    type="text"
+                    accept="image/*,video/*"
+                    onChange={() => { }} // Dummy to avoid error, actual handler is on input file below, wait... 
+                    className="hidden"
+                />
+                <input
                     type="file"
                     accept="image/*,video/*"
                     onChange={handleUpload}
                     id="media-upload"
                     className="hidden"
                     disabled={uploading}
+                    multiple
                 />
                 <label htmlFor="media-upload" className="cursor-pointer flex flex-col items-center justify-center p-8">
                     {uploading ? (
@@ -127,9 +138,9 @@ export function MediaManager({ section }: MediaManagerProps) {
                         <Upload className="text-primary mb-2" size={40} />
                     )}
                     <span className="font-bold text-lg text-primary">
-                        {uploading ? 'Envoi en cours...' : 'Ajouter une photo ou vidéo'}
+                        {uploading ? 'Envoi en cours...' : 'Ajouter des photos ou vidéos'}
                     </span>
-                    <span className="text-text-secondary text-sm mt-1">Glissez ou cliquez pour uploader</span>
+                    <span className="text-text-secondary text-sm mt-1">Glissez ou cliquez pour uploader (Plusieurs fichiers possibles)</span>
                 </label>
             </div>
 
