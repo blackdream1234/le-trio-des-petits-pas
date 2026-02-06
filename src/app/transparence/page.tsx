@@ -57,9 +57,20 @@ export default function TransparencePage() {
                         </div>
                         <div className="w-full md:w-1/2 space-y-6">
                             <h2 className="text-3xl font-display font-bold text-text-primary">Pourquoi finançons-nous des stages ?</h2>
-                            <p className="text-lg text-text-secondary leading-relaxed">
-                                Les méthodes de rééducation intensive (comme Medek, Padovan ou Essentis) ne sont <strong>pas remboursées</strong> en France. Pourtant, elles permettent des progrès spectaculaires.
-                            </p>
+                            <div className="text-lg text-text-secondary leading-relaxed space-y-4">
+                                <p>
+                                    Parce que pour nos enfants, progresser demande plus de temps, plus de soins et plus d’accompagnement.
+                                </p>
+                                <p>
+                                    Les stages intensifs offrent un cadre spécialisé qui permet d’accélérer les progrès en mobilité et en autonomie, mais ils sont rarement pris en charge financièrement.
+                                </p>
+                                <p>
+                                    Nous aidons donc les familles à y accéder, pour que chaque enfant puisse continuer à avancer.
+                                </p>
+                                <p className="font-bold text-primary">
+                                    Chaque progrès change le quotidien d’un enfant et de sa famille.
+                                </p>
+                            </div>
 
                             <ul className="space-y-4">
                                 {[
