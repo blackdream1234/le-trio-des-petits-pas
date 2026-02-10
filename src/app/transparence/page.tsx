@@ -62,6 +62,8 @@ export default function TransparencePage() {
         fetchData();
     }, []);
 
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
     return (
         <div className="min-h-screen bg-surface">
             {/* Hero Section - Static */}
@@ -115,7 +117,7 @@ export default function TransparencePage() {
                                 {[
                                     { emoji: "💶", title: "Coût moyen", desc: "2000€ à 3000€ pour 2 semaines" }
                                 ].map((item, i) => (
-                                    <li key={i} className="flex items-start gap-4 p-4 bg-white rounded-2xl border border-border hover:border-primary transition-colors shadow-sm">
+                                    <li key={i} className="flex items-start gap-4 p-4 bg-surface-elevated rounded-2xl border border-border hover:border-primary transition-colors shadow-sm">
                                         <span className="text-3xl">{item.emoji}</span>
                                         <div>
                                             <h4 className="font-bold text-text-primary">{item.title}</h4>
@@ -172,12 +174,12 @@ export default function TransparencePage() {
                         </div>
 
                         {stories.length === 0 ? (
-                            <div className="text-center py-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                            <div className="text-center py-12 bg-surface-elevated rounded-3xl border border-dashed border-gray-200 dark:border-gray-700">
                                 <p className="text-text-secondary">Aucune story pour le moment...</p>
                             </div>
                         ) : (
                             stories.map(story => (
-                                <div key={story.id} className="bg-white p-6 md:p-8 rounded-3xl border border-border shadow-sm scroll-mt-32" id={`story-${story.id}`}>
+                                <div key={story.id} className="bg-surface-elevated p-6 md:p-8 rounded-3xl border border-border shadow-sm scroll-mt-32" id={`story-${story.id}`}>
                                     {/* Story Header */}
                                     <div className="mb-8 border-b border-border pb-6">
                                         <div className="flex items-center gap-4 mb-3">
@@ -189,7 +191,7 @@ export default function TransparencePage() {
                                             {story.title}
                                         </h3>
                                         {story.description && (
-                                            <div className="prose prose-lg text-text-secondary max-w-none whitespace-pre-line leading-relaxed">
+                                            <div className="prose prose-lg dark:prose-invert text-text-secondary max-w-none whitespace-pre-line leading-relaxed">
                                                 {story.description}
                                             </div>
                                         )}
@@ -199,7 +201,11 @@ export default function TransparencePage() {
                                     {story.media && story.media.length > 0 ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {story.media.map((item: any) => (
-                                                <div key={item.id} className="relative group cursor-pointer overflow-hidden rounded-2xl h-64 shadow-lg bg-black">
+                                                <div
+                                                    key={item.id}
+                                                    className="relative group cursor-pointer overflow-hidden rounded-2xl h-64 shadow-lg bg-black"
+                                                    onClick={() => item.type !== 'video' && setSelectedImage(item.url)}
+                                                >
                                                     {item.type === 'video' ? (
                                                         <>
                                                             <video src={item.url} className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" controls />
@@ -220,6 +226,27 @@ export default function TransparencePage() {
                     </div>
                 </div>
             </section>
+
+            {/* Lightbox */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <button
+                        className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                    <img
+                        src={selectedImage}
+                        alt="Full view"
+                        className="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </div>
     );
 }
