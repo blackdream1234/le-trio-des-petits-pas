@@ -6,8 +6,8 @@ import { createClient } from '@/utils/supabase/client';
 export default function TransparencePage() {
     const [media, setMedia] = useState<any[]>([]);
     const [content, setContent] = useState({
-        title: "Transparence",
-        desc: "La transparence est une de nos valeurs fondamentales. Chaque don est un investissement direct dans l'avenir d'un enfant.",
+        stageTitle: "",
+        stageDesc: "",
         galleryTitle: "La preuve par l'image 📸",
         galleryDesc: "Découvrez les progrès réalisés grâce à votre soutien."
     });
@@ -18,14 +18,17 @@ export default function TransparencePage() {
             // 1. Fetch Text Content
             const { data: textData } = await supabase.from('site_content').select('*').eq('section', 'transparency');
             if (textData) {
-                const title = textData.find(c => c.key === 'transparency_title')?.content;
-                const desc = textData.find(c => c.key === 'transparency_desc')?.content;
+                // Determine what keys map to what UI elements
+                // The Admin Panel edits 'transparency_title' and 'transparency_desc'
+                const stageTitle = textData.find(c => c.key === 'transparency_title')?.content;
+                const stageDesc = textData.find(c => c.key === 'transparency_desc')?.content;
                 const galTitle = textData.find(c => c.key === 'transparency_gallery_title')?.content;
                 const galDesc = textData.find(c => c.key === 'transparency_gallery_desc')?.content;
 
                 setContent(prev => ({
-                    title: title || prev.title,
-                    desc: desc || prev.desc,
+                    ...prev,
+                    stageTitle: stageTitle || prev.stageTitle,
+                    stageDesc: stageDesc || prev.stageDesc,
                     galleryTitle: galTitle || prev.galleryTitle,
                     galleryDesc: galDesc || prev.galleryDesc
                 }));
@@ -47,14 +50,14 @@ export default function TransparencePage() {
 
     return (
         <div className="min-h-screen bg-surface">
-            {/* Hero Section */}
+            {/* Hero Section - Static */}
             <section className="pt-40 pb-20 px-6 bg-surface-elevated">
                 <div className="container mx-auto max-w-4xl text-center">
                     <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl text-text-primary mb-6">
-                        {content.title}
+                        Transparence
                     </h1>
                     <p className="text-xl text-text-secondary leading-relaxed max-w-2xl mx-auto">
-                        {content.desc}
+                        La transparence est une de nos valeurs fondamentales. Chaque don est un investissement direct dans l'avenir d'un enfant.
                     </p>
                 </div>
             </section>
@@ -147,7 +150,16 @@ export default function TransparencePage() {
                         </div>
                     </div>
 
-                    {/* Media Gallery "En Images" */}
+                    {/* Latest Stage / Media Gallery Section */}
+
+                    {/* Only show the Stage Info if title exists */}
+                    {(content.stageTitle || content.stageDesc) && (
+                        <div className="mb-12 bg-white p-8 rounded-3xl border border-border shadow-sm">
+                            {content.stageTitle && <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-4">{content.stageTitle}</h2>}
+                            {content.stageDesc && <p className="text-lg text-text-secondary whitespace-pre-line">{content.stageDesc}</p>}
+                        </div>
+                    )}
+
                     <div className="space-y-12">
                         <div className="text-center">
                             <h2 className="text-3xl font-display font-bold text-text-primary mb-4">{content.galleryTitle}</h2>
