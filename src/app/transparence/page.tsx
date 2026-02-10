@@ -7,7 +7,9 @@ export default function TransparencePage() {
     const [media, setMedia] = useState<any[]>([]);
     const [content, setContent] = useState({
         title: "Transparence",
-        desc: "La transparence est une de nos valeurs fondamentales. Chaque don est un investissement direct dans l'avenir d'un enfant."
+        desc: "La transparence est une de nos valeurs fondamentales. Chaque don est un investissement direct dans l'avenir d'un enfant.",
+        galleryTitle: "La preuve par l'image 📸",
+        galleryDesc: "Découvrez les progrès réalisés grâce à votre soutien."
     });
     const supabase = createClient();
 
@@ -18,12 +20,15 @@ export default function TransparencePage() {
             if (textData) {
                 const title = textData.find(c => c.key === 'transparency_title')?.content;
                 const desc = textData.find(c => c.key === 'transparency_desc')?.content;
-                if (title || desc) {
-                    setContent(prev => ({
-                        title: title || prev.title,
-                        desc: desc || prev.desc
-                    }));
-                }
+                const galTitle = textData.find(c => c.key === 'transparency_gallery_title')?.content;
+                const galDesc = textData.find(c => c.key === 'transparency_gallery_desc')?.content;
+
+                setContent(prev => ({
+                    title: title || prev.title,
+                    desc: desc || prev.desc,
+                    galleryTitle: galTitle || prev.galleryTitle,
+                    galleryDesc: galDesc || prev.galleryDesc
+                }));
             }
 
             // 2. Fetch Media Gallery
@@ -145,8 +150,8 @@ export default function TransparencePage() {
                     {/* Media Gallery "En Images" */}
                     <div className="space-y-12">
                         <div className="text-center">
-                            <h2 className="text-3xl font-display font-bold text-text-primary mb-4">La preuve par l'image 📸</h2>
-                            <p className="text-text-secondary">Découvrez les progrès réalisés grâce à votre soutien.</p>
+                            <h2 className="text-3xl font-display font-bold text-text-primary mb-4">{content.galleryTitle}</h2>
+                            <p className="text-text-secondary">{content.galleryDesc}</p>
                         </div>
 
                         {media.length === 0 ? (
