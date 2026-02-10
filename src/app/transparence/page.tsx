@@ -99,9 +99,7 @@ export default function TransparencePage() {
 
                             <ul className="space-y-4">
                                 {[
-                                    { emoji: "💶", title: "Coût moyen", desc: "2000€ à 3000€ pour 2 semaines" },
-                                    { emoji: "🌍", title: "Lieu", desc: "Souvent à l'étranger (Espagne, USA, Pologne)" },
-                                    { emoji: "💪", title: "Résultat", desc: "Acquisition de la marche, tenue de tête, communication" }
+                                    { emoji: "💶", title: "Coût moyen", desc: "2000€ à 3000€ pour 2 semaines" }
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-start gap-4 p-4 bg-white rounded-2xl border border-border hover:border-primary transition-colors shadow-sm">
                                         <span className="text-3xl">{item.emoji}</span>
