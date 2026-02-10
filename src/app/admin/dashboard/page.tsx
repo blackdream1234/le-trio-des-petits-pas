@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/client';
 import { AddChildForm } from '@/components/admin/AddChildForm';
 import { ContentEditor } from '@/components/admin/ContentEditor';
 import { MediaManager } from '@/components/admin/MediaManager';
+import { StoriesManager } from '@/components/admin/StoriesManager';
 import { Trash2, Pencil, Users, Home, Activity, Camera } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -72,8 +73,8 @@ export default function Dashboard() {
                     <button
                         onClick={() => setActiveTab('children')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all whitespace-nowrap ${activeTab === 'children'
-                                ? 'bg-primary text-white shadow-lg'
-                                : 'bg-white text-text-secondary hover:bg-gray-50'
+                            ? 'bg-primary text-white shadow-lg'
+                            : 'bg-white text-text-secondary hover:bg-gray-50'
                             }`}
                     >
                         <Users size={20} />
@@ -82,8 +83,8 @@ export default function Dashboard() {
                     <button
                         onClick={() => setActiveTab('home')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all whitespace-nowrap ${activeTab === 'home'
-                                ? 'bg-primary text-white shadow-lg'
-                                : 'bg-white text-text-secondary hover:bg-gray-50'
+                            ? 'bg-primary text-white shadow-lg'
+                            : 'bg-white text-text-secondary hover:bg-gray-50'
                             }`}
                     >
                         <Home size={20} />
@@ -92,8 +93,8 @@ export default function Dashboard() {
                     <button
                         onClick={() => setActiveTab('actions')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all whitespace-nowrap ${activeTab === 'actions'
-                                ? 'bg-primary text-white shadow-lg'
-                                : 'bg-white text-text-secondary hover:bg-gray-50'
+                            ? 'bg-primary text-white shadow-lg'
+                            : 'bg-white text-text-secondary hover:bg-gray-50'
                             }`}
                     >
                         <Activity size={20} />
@@ -102,8 +103,8 @@ export default function Dashboard() {
                     <button
                         onClick={() => setActiveTab('transparency')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all whitespace-nowrap ${activeTab === 'transparency'
-                                ? 'bg-primary text-white shadow-lg'
-                                : 'bg-white text-text-secondary hover:bg-gray-50'
+                            ? 'bg-primary text-white shadow-lg'
+                            : 'bg-white text-text-secondary hover:bg-gray-50'
                             }`}
                     >
                         <Camera size={20} />
@@ -208,17 +209,26 @@ export default function Dashboard() {
 
                 {activeTab === 'transparency' && (
                     <div className="max-w-6xl mx-auto space-y-8">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div className="space-y-8">
-                                <div>
-                                    <h2 className="text-2xl font-bold font-display text-text-primary mb-4">Textes</h2>
-                                    <ContentEditor section="transparency" />
-                                </div>
+                        <div className="bg-white p-6 rounded-3xl border border-border">
+                            <h2 className="text-2xl font-bold text-primary mb-2">Page Transparence</h2>
+                            <p className="text-text-secondary">
+                                Gérez ici le fil d'actualité "Stories" (Stages, Événements, Achats de matériel).
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Left: General Page Texts (Title, Intro, Gallery Title) */}
+                            <div className="lg:col-span-1 space-y-8">
+                                <ContentEditor section="transparency" />
                             </div>
-                            <div>
-                                <h2 className="text-2xl font-bold font-display text-text-primary mb-4">Galerie Photo & Vidéo</h2>
-                                <p className="text-text-secondary mb-4">Ces photos apparaissent directement dans la grille "La preuve par l'image".</p>
-                                <MediaManager section="transparency" />
+
+                            {/* Right: Stories Management (Feed) */}
+                            <div className="lg:col-span-2 space-y-8">
+                                <div className="bg-white p-6 rounded-3xl border border-border shadow-sm">
+                                    <h3 className="font-display font-bold text-xl text-primary mb-4">Fil d'Actualité (Stories)</h3>
+                                    <p className="text-sm text-text-secondary mb-6">Create new stories to share updates. Each story can have its own photos and text.</p>
+                                    <StoriesManager />
+                                </div>
                             </div>
                         </div>
                     </div>

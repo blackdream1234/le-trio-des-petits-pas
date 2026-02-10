@@ -15,24 +15,37 @@ interface MediaItem {
 
 interface MediaManagerProps {
     section: string;
+    storyId?: string | null; // Optional: if null/undefined, it behaves as "General Gallery" or ignored
 }
 
-export function MediaManager({ section }: MediaManagerProps) {
+export function MediaManager({ section, storyId }: MediaManagerProps) {
     const [media, setMedia] = useState<MediaItem[]>([]);
     const [uploading, setUploading] = useState(false);
     const [captionBuffer, setCaptionBuffer] = useState<{ [key: string]: string }>({});
     const supabase = createClient();
 
     useEffect(() => {
-        fetchMedia();
-    }, [section]);
+        if (section) fetchMedia();
+    }, [section, storyId]);
 
     const fetchMedia = async () => {
-        const { data, error } = await supabase
+        let query = supabase
             .from('site_media')
             .select('*')
             .eq('section', section)
             .order('created_at', { ascending: false });
+
+        if (storyId) {
+            query = query.eq('story_id', storyId);
+        } else {
+            // If we are in "General Mode" (no story), maybe we only want items WITHOUT a story?
+            // Or maybe we want all? For now, let's say if no storyId is passed, we fetch everything for the section.
+            // BUT for transparency page, we might want to separate "General" from "Stories".
+            // Let's explicitly check: if storyId is passed, use it. If explicit NULL is desired, we'd need another flag.
+            // For now, simple filter is enough.
+        }
+
+        const { data, error } = await query;
 
         if (data) setMedia(data as MediaItem[]);
     };
@@ -70,7 +83,8 @@ export function MediaManager({ section }: MediaManagerProps) {
                         url: data.publicUrl,
                         type: isVideo ? 'video' : 'image',
                         caption: '',
-                        section: section
+                        section: section,
+                        story_id: storyId // Link to story
                     }]);
 
                 if (dbError) throw dbError;

@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
 export default function TransparencePage() {
-    const [media, setMedia] = useState<any[]>([]);
+    const [stories, setStories] = useState<any[]>([]);
+    const [media, setMedia] = useState<any[]>([]); // Keep for unassigned media if needed
     const [content, setContent] = useState({
-        stageTitle: "",
-        stageDesc: "",
-        galleryTitle: "La preuve par l'image 📸",
-        galleryDesc: "Découvrez les progrès réalisés grâce à votre soutien."
+        title: "Transparence",
+        desc: "La transparence est une de nos valeurs fondamentales. Chaque don est un investissement direct dans l'avenir d'un enfant.",
+        galleryTitle: "Nos Histoires et Progrès", // Default value
+        galleryDesc: "Découvrez les parcours inspirants des enfants que nous soutenons et les étapes franchies grâce à votre générosité." // Default value
     });
     const supabase = createClient();
 
@@ -18,31 +19,44 @@ export default function TransparencePage() {
             // 1. Fetch Text Content
             const { data: textData } = await supabase.from('site_content').select('*').eq('section', 'transparency');
             if (textData) {
-                // Determine what keys map to what UI elements
-                // The Admin Panel edits 'transparency_title' and 'transparency_desc'
-                const stageTitle = textData.find(c => c.key === 'transparency_title')?.content;
-                const stageDesc = textData.find(c => c.key === 'transparency_desc')?.content;
-                const galTitle = textData.find(c => c.key === 'transparency_gallery_title')?.content;
-                const galDesc = textData.find(c => c.key === 'transparency_gallery_desc')?.content;
+                const title = textData.find(c => c.key === 'transparency_title')?.content;
+                const desc = textData.find(c => c.key === 'transparency_desc')?.content;
+                const galleryTitle = textData.find(c => c.key === 'transparency_gallery_title')?.content;
+                const galleryDesc = textData.find(c => c.key === 'transparency_gallery_desc')?.content;
 
                 setContent(prev => ({
-                    ...prev,
-                    stageTitle: stageTitle || prev.stageTitle,
-                    stageDesc: stageDesc || prev.stageDesc,
-                    galleryTitle: galTitle || prev.galleryTitle,
-                    galleryDesc: galDesc || prev.galleryDesc
+                    title: title || prev.title,
+                    desc: desc || prev.desc,
+                    galleryTitle: galleryTitle || prev.galleryTitle,
+                    galleryDesc: galleryDesc || prev.galleryDesc
                 }));
             }
 
-            // 2. Fetch Media Gallery
+            // 2. Fetch Stories
+            const { data: storiesData } = await supabase
+                .from('stories')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            // 3. Fetch All Media
             const { data: mediaData } = await supabase
                 .from('site_media')
                 .select('*')
                 .eq('section', 'transparency')
                 .order('created_at', { ascending: false });
 
-            if (mediaData && mediaData.length > 0) {
-                setMedia(mediaData);
+            // 4. Combine
+            if (storiesData && mediaData) {
+                const storiesWithMedia = storiesData.map(story => ({
+                    ...story,
+                    media: mediaData.filter(m => m.story_id === story.id)
+                }));
+                setStories(storiesWithMedia);
+
+                // Optional: valid media that is NOT in a story could be in 'media' state
+                setMedia(mediaData.filter(m => !m.story_id));
+                // For now let's just keep all media in 'media' if we want a gallery at bottom, or just stories.
+                // The user seems to want a feed. Let's prioritize stories.
             }
         }
         fetchData();
@@ -150,48 +164,58 @@ export default function TransparencePage() {
 
                     {/* Latest Stage / Media Gallery Section */}
 
-                    {/* Only show the Stage Info if title exists */}
-                    {(content.stageTitle || content.stageDesc) && (
-                        <div className="mb-12 bg-white p-8 rounded-3xl border border-border shadow-sm">
-                            {content.stageTitle && <h2 className="text-2xl md:text-3xl font-display font-bold text-primary mb-4">{content.stageTitle}</h2>}
-                            {content.stageDesc && <p className="text-lg text-text-secondary whitespace-pre-line">{content.stageDesc}</p>}
-                        </div>
-                    )}
-
-                    <div className="space-y-12">
+                    {/* Stories Feed */}
+                    <div className="space-y-12 mb-24">
                         <div className="text-center">
                             <h2 className="text-3xl font-display font-bold text-text-primary mb-4">{content.galleryTitle}</h2>
                             <p className="text-text-secondary">{content.galleryDesc}</p>
                         </div>
 
-                        {media.length === 0 ? (
+                        {stories.length === 0 ? (
                             <div className="text-center py-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                                <p className="text-text-secondary">Galerie à venir...</p>
-                                <p className="text-xs text-text-secondary mt-2">Connectez-vous à l'admin pour ajouter des photos.</p>
+                                <p className="text-text-secondary">Aucune story pour le moment...</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {media.map((item) => (
-                                    <div key={item.id} className="relative group cursor-pointer overflow-hidden rounded-2xl h-64 shadow-lg bg-black">
-                                        {item.type === 'video' ? (
-                                            <>
-                                                <video src={item.url} className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" controls />
-                                                <div className="absolute top-4 right-4 bg-red-600 text-white text-xs px-2 py-1 rounded font-bold">VIDÉO</div>
-                                            </>
-                                        ) : (
-                                            <img src={item.url} alt={item.caption || "Photo"} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                        )}
-
-                                        {item.caption && (
-                                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                                                <span className="text-white font-bold text-sm bg-black/30 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
-                                                    {item.caption}
-                                                </span>
+                            stories.map(story => (
+                                <div key={story.id} className="bg-white p-6 md:p-8 rounded-3xl border border-border shadow-sm scroll-mt-32" id={`story-${story.id}`}>
+                                    {/* Story Header */}
+                                    <div className="mb-8 border-b border-border pb-6">
+                                        <div className="flex items-center gap-4 mb-3">
+                                            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                                {new Date(story.created_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                        <h3 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-4">
+                                            {story.title}
+                                        </h3>
+                                        {story.description && (
+                                            <div className="prose prose-lg text-text-secondary max-w-none whitespace-pre-line leading-relaxed">
+                                                {story.description}
                                             </div>
                                         )}
                                     </div>
-                                ))}
-                            </div>
+
+                                    {/* Story Gallery */}
+                                    {story.media && story.media.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {story.media.map((item: any) => (
+                                                <div key={item.id} className="relative group cursor-pointer overflow-hidden rounded-2xl h-64 shadow-lg bg-black">
+                                                    {item.type === 'video' ? (
+                                                        <>
+                                                            <video src={item.url} className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity" controls />
+                                                            <div className="absolute top-4 right-4 bg-red-600 text-white text-xs px-2 py-1 rounded font-bold">VIDÉO</div>
+                                                        </>
+                                                    ) : (
+                                                        <img src={item.url} alt={item.caption || "Photo"} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-text-secondary italic">Aucune photo pour cette story.</p>
+                                    )}
+                                </div>
+                            ))
                         )}
                     </div>
                 </div>
