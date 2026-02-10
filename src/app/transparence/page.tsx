@@ -5,11 +5,28 @@ import { createClient } from '@/utils/supabase/client';
 
 export default function TransparencePage() {
     const [media, setMedia] = useState<any[]>([]);
+    const [content, setContent] = useState({
+        title: "Transparence",
+        desc: "La transparence est une de nos valeurs fondamentales. Chaque don est un investissement direct dans l'avenir d'un enfant."
+    });
     const supabase = createClient();
 
     useEffect(() => {
-        async function fetchMedia() {
-            // Fetch Media Gallery Only
+        async function fetchData() {
+            // 1. Fetch Text Content
+            const { data: textData } = await supabase.from('site_content').select('*').eq('section', 'transparency');
+            if (textData) {
+                const title = textData.find(c => c.key === 'transparency_title')?.content;
+                const desc = textData.find(c => c.key === 'transparency_desc')?.content;
+                if (title || desc) {
+                    setContent(prev => ({
+                        title: title || prev.title,
+                        desc: desc || prev.desc
+                    }));
+                }
+            }
+
+            // 2. Fetch Media Gallery
             const { data: mediaData } = await supabase
                 .from('site_media')
                 .select('*')
@@ -20,7 +37,7 @@ export default function TransparencePage() {
                 setMedia(mediaData);
             }
         }
-        fetchMedia();
+        fetchData();
     }, []);
 
     return (
@@ -29,10 +46,10 @@ export default function TransparencePage() {
             <section className="pt-40 pb-20 px-6 bg-surface-elevated">
                 <div className="container mx-auto max-w-4xl text-center">
                     <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl text-text-primary mb-6">
-                        Transparence
+                        {content.title}
                     </h1>
                     <p className="text-xl text-text-secondary leading-relaxed max-w-2xl mx-auto">
-                        La transparence est une de nos valeurs fondamentales. Chaque don est un investissement direct dans l'avenir d'un enfant.
+                        {content.desc}
                     </p>
                 </div>
             </section>
