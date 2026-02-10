@@ -44,7 +44,7 @@ export default function TransparencePage() {
                         <div className="w-full md:w-1/2">
                             <div className="relative rounded-3xl overflow-hidden shadow-2xl group">
                                 <img
-                                    src="/adam.jpg"
+                                    src="/stage-visual.jpg"
                                     alt="Enfant en stage"
                                     className="w-full h-[500px] object-cover object-top transition-transform duration-700 group-hover:scale-105"
                                 />
