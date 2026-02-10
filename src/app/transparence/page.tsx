@@ -90,6 +90,41 @@ export default function TransparencePage() {
                         </div>
                     </div>
 
+                    {/* Material Section - Image Right, Text Left */}
+                    <div className="flex flex-col md:flex-row-reverse gap-12 items-center mb-24">
+                        <div className="w-full md:w-1/2">
+                            <div className="relative rounded-3xl overflow-hidden shadow-2xl group">
+                                <img
+                                    src="/materiel-visual.jpg"
+                                    alt="Matériel adapté"
+                                    className="w-full h-[500px] object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
+                                    <span className="bg-secondary text-white px-4 py-1 rounded-full text-sm font-bold w-fit mb-2">Autonomie</span>
+                                    <h3 className="text-white font-display font-bold text-3xl">Le Matériel Adapté</h3>
+                                    <p className="text-white/90 mt-2">Donner les moyens à chaque enfant d'avancer.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="w-full md:w-1/2 space-y-6">
+                            <h2 className="text-3xl font-display font-bold text-text-primary">Pourquoi finançons-nous le matériel adapté ?</h2>
+                            <div className="text-lg text-text-secondary leading-relaxed space-y-4">
+                                <p>
+                                    Un fauteuil adapté, un déambulateur, un siège spécialisé ou du matériel de positionnement peuvent coûter plusieurs milliers d’euros, et restent souvent mal remboursés ou avec de longs délais d’attente.
+                                </p>
+                                <p>
+                                    Pourtant, ces équipements sont essentiels : ils permettent aux enfants de se déplacer, éviter les douleurs, progresser dans leurs soins et gagner en autonomie au quotidien.
+                                </p>
+                                <p>
+                                    À travers Le Trio des Petits Pas, nous aidons les familles à financer ce matériel indispensable pour que les progrès d’un enfant ne dépendent pas des moyens financiers de ses parents.
+                                </p>
+                                <p className="font-bold text-primary">
+                                    Parce que chaque petit pas mérite toutes les chances d’avancer.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Media Gallery "En Images" */}
                     <div className="space-y-12">
                         <div className="text-center">
