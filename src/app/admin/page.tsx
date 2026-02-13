@@ -1,15 +1,15 @@
-'use client'
-
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Lock } from 'lucide-react'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 export default function AdminLogin() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null)
     const router = useRouter()
     const supabase = createClient()
 
@@ -17,6 +17,12 @@ export default function AdminLogin() {
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!captchaToken) {
+            setError("Veuillez valider le captcha.")
+            return
+        }
+
         setLoading(true)
         setError(null)
 
@@ -24,6 +30,7 @@ export default function AdminLogin() {
             const { error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
+                options: { captchaToken }
             })
             if (signUpError) {
                 setError(signUpError.message)
@@ -35,6 +42,7 @@ export default function AdminLogin() {
             const { error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
+                options: { captchaToken }
             })
 
             if (error) {
@@ -93,9 +101,18 @@ export default function AdminLogin() {
                         />
                     </div>
 
+                    <div className="flex justify-center py-2">
+                        <Turnstile
+                            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                            onSuccess={setCaptchaToken}
+                            onError={() => setError("Erreur Captcha. Veuillez rafraîchir.")}
+                            options={{ theme: 'light' }}
+                        />
+                    </div>
+
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !captchaToken}
                         className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 mt-4"
                     >
                         {loading ? 'Traitement...' : (isRegistering ? "S'inscrire" : 'Se connecter')}
